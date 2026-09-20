@@ -1,0 +1,94 @@
+project:
+  type: book
+  output-dir: _book
+  pre-render: find .. -name ._* -delete
+  post-render: find .. -name ._* -delete
+
+book:
+  title: "IPCC Tier 1 Greenhouse Gas Inventories for Forests and Other Land"
+  subtitle: "A Coding Guide to the 2019 Refinement, Volume 4, Chapters 1 to 9"
+  author:
+    - name: Seamus Murphy
+      url: https://scholar.google.com/citations?hl=en&user=jDGq9I4AAAAJ
+      orcid: 0000-0002-1792-0351
+      email: seamusrobertmurphy@gmail.com
+  date: last-modified
+  output-file: ipcc-verifier-guide
+  open-graph: true
+  page-footer:
+    left: "[Source](https://github.com/seamusrobertmurphy/ipcc-verifier-guide)"
+  repo-url: https://github.com/seamusrobertmurphy/ipcc-verifier-guide
+  repo-branch: main
+  repo-subdir: 01.manuscript
+  repo-actions: [edit, issue]
+
+  chapters:
+    - index.qmd
+    - 01-introduction.qmd
+    - 02-generic-methods.qmd
+    - 03-land-representation.qmd
+    - 04-forest-land.qmd
+    - 05-cropland.qmd
+    - 06-grassland.qmd
+    - 07-wetlands.qmd
+    - 08-settlements.qmd
+    - 09-other-land.qmd
+    - references.qmd
+
+  appendices:
+    - A1-sources.qmd
+
+  sidebar:
+    title: "Contents"
+    search: true
+    style: "docked"
+    collapse-level: 4
+
+bibliography: ../04.references/references.bib
+csl: ../04.references/elsevier-harvard.csl
+citeproc: true
+
+number-sections: true
+
+execute:
+  eval: true
+  echo: true
+  warning: false
+  message: false
+  error: true
+  freeze: auto
+
+format:
+  docx:
+    toc: true
+    number-sections: true
+    prefer-html: true
+    reference-doc: ../04.references/style-formal.docx
+    highlight-style: pygments
+    df-print: kable
+  html:
+    toc: true
+    number-sections: true
+    toc-title: "**On this page**"
+    toc-location: right
+    toc-depth: 3
+    theme: cosmo
+    css: styles.css
+    title-block-style: plain
+    code-fold: false
+    code-tools: true
+    code-link: true
+    code-overflow: wrap
+    code-summary: "Code"
+    df-print: kable
+
+engine: knitr
+
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#"
+    out.width: "100%"
+    fig.path: "../03.outputs/figures/"
+    dev: "png"
+    dpi: 600

@@ -1,0 +1,76 @@
+# ---------------------------------------------------------------------------
+# Third-party guidance, standards and reports are never committed.
+#
+# Copyrighted PDFs are not redistributed here. 04.references/README.md records
+# provenance and retrieval for each. The markdown conversions under standards/
+# are excluded too, because they are the text of copyrighted guidance and
+# converting a format does not change that.
+# ---------------------------------------------------------------------------
+04.references/reports/
+04.references/standards/
+04.references/ipcc-guidelines/
+04.references/literature/
+
+# macOS resource forks. The drive is exFAT, so macOS writes a ._ twin beside
+# every file it touches.
+._*
+.DS_Store
+.AppleDouble
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# R and RStudio
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Renviron
+
+# ---------------------------------------------------------------------------
+# Raw input data is never committed.
+#
+# Large third-party data lives on the external drive and git carries only a
+# manifest of provenance plus the small derived CSVs the book reads. GitHub
+# rejects any file over 100 MB, so an accidental `git add 02.inputs` would
+# wedge the repo. Everything under 02.inputs is ignored by default, and the
+# exceptions below re-admit the documentation and the derived outputs.
+# ---------------------------------------------------------------------------
+02.inputs/**
+!02.inputs/
+!02.inputs/**/
+!02.inputs/**/*.md
+!02.inputs/derived/**
+
+# The derived/** re-admission above would otherwise let macOS resource forks
+# back in, so they are excluded again last and the ._* rule wins.
+02.inputs/**/._*
+**/._*
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Quarto. The book renders into 01.manuscript/_book, which is regenerable. The
+# Word render is re-admitted because Word is the format that is read and sent.
+01.manuscript/.quarto/
+01.manuscript/_freeze/
+01.manuscript/_book/*
+!01.manuscript/_book/*.docx
+01.manuscript/*_files/
+01.manuscript/*_cache/
+01.manuscript/*.html
+01.manuscript/site_libs/
+
+# Working files and communication. Nothing here is an input or an output.
+/05.tasks/
+/tasks/
+/docs/
+/attachments/
+CLAUDE.md
+INDEX.md
+
+# Claude Code local state, except the shared project memory store
+**/.claude/*
+!**/.claude/memory/
+.claudeprism/

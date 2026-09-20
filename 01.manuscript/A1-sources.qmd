@@ -1,0 +1,206 @@
+# Sources {#sec-sources}
+
+The methods in this book were taken from two editions of Volume 4 of the IPCC Guidelines, the 2006 Guidelines [@ipcc2006] and the 2019 Refinement [@ipcc2019refinement]. The 2019 Refinement amended the 2006 Guidelines chapter by chapter and did not replace them, so both editions were needed. Each chapter, annex and appendix was downloaded from the IPCC Task Force on National Greenhouse Gas Inventories.
+
+```{r}
+#| label: sources
+
+sources <- tibble::tribble(
+  ~edition, ~part,  ~url,
+  "2006", "Ch01",  "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_01_Ch1_Introduction.pdf",
+  "2006", "Ch02",  "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_02_Ch2_Generic.pdf",
+  "2006", "Ch03",  "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_03_Ch3_Representation.pdf",
+  "2006", "Ch04",  "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_04_Ch4_Forest_Land.pdf",
+  "2006", "Ch05",  "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_05_Ch5_Cropland.pdf",
+  "2006", "Ch06",  "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_06_Ch6_Grassland.pdf",
+  "2006", "Ch07",  "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_07_Ch7_Wetlands.pdf",
+  "2006", "Ch08",  "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_08_Ch8_Settlements.pdf",
+  "2006", "Ch09",  "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_09_Ch9_Other_Land.pdf",
+  "2006", "An1",   "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_13_An1_Worksheets.pdf",
+  "2006", "An2",   "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_14_An2_SumEqua.pdf",
+  "2006", "Ap1",   "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_p_Ap1_Charcoal.pdf",
+  "2006", "Ap2",   "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_p_Ap2_WetlandsCO2.pdf",
+  "2006", "Ap3",   "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/4_Volume4/V4_p_Ap3_WetlandsCH4.pdf",
+  "2019", "Ch01",  "https://www.ipcc-nggip.iges.or.jp/public/2019rf/pdf/4_Volume4/19R_V4_Ch01_Introduction.pdf",
+  "2019", "Ch02",  "https://www.ipcc-nggip.iges.or.jp/public/2019rf/pdf/4_Volume4/19R_V4_Ch02_Generic Methods.pdf",
+  "2019", "Ch02-Ap4", "https://www.ipcc-nggip.iges.or.jp/public/2019rf/pdf/4_Volume4/19R_V4_Ch02_Ap4_Biochar.pdf",
+  "2019", "Ch03",  "https://www.ipcc-nggip.iges.or.jp/public/2019rf/pdf/4_Volume4/19R_V4_Ch03_Land Representation.pdf",
+  "2019", "Ch04",  "https://www.ipcc-nggip.iges.or.jp/public/2019rf/pdf/4_Volume4/19R_V4_Ch04_Forest Land.pdf",
+  "2019", "Ch05",  "https://www.ipcc-nggip.iges.or.jp/public/2019rf/pdf/4_Volume4/19R_V4_Ch05_Cropland.pdf",
+  "2019", "Ch06",  "https://www.ipcc-nggip.iges.or.jp/public/2019rf/pdf/4_Volume4/19R_V4_Ch06_Grassland.pdf",
+  "2019", "Ch07",  "https://www.ipcc-nggip.iges.or.jp/public/2019rf/pdf/4_Volume4/19R_V4_Ch07_Wetlands.pdf",
+  "2019", "Ch08",  "https://www.ipcc-nggip.iges.or.jp/public/2019rf/pdf/4_Volume4/19R_V4_Ch08_Settlements.pdf",
+  "2019", "Ch09",  "https://www.ipcc-nggip.iges.or.jp/public/2019rf/pdf/4_Volume4/19R_V4_Ch09_OtherLand.pdf",
+  "2019", "An1",   "https://www.ipcc-nggip.iges.or.jp/public/2019rf/pdf/4_Volume4/19R_V4_An1_Mapping Tables.pdf",
+  "2019", "An2",   "https://www.ipcc-nggip.iges.or.jp/public/2019rf/pdf/4_Volume4/19R_V4_An2_Worksheets.pdf"
+) |>
+  dplyr::mutate(file = glue::glue("../04.references/standards/IPCC-pdf/IPCC-{edition}-V4-{part}.pdf"))
+
+# 2006 IPCC Guidelines, Volume 4, https://www.ipcc-nggip.iges.or.jp/public/2006gl/vol4.html
+# 2019 Refinement, Volume 4, https://www.ipcc-nggip.iges.or.jp/public/2019rf/vol4.html
+sources |>
+  dplyr::filter(!file.exists(file)) |>
+  purrr::pwalk(\(url, file, ...) download.file(URLencode(url), file, mode = "wb", quiet = TRUE))
+```
+
+```{r}
+#| label: register
+
+register <- sources |>
+  dplyr::mutate(
+    page1 = purrr::map_chr(file, \(f) pdftools::pdf_text(f)[1]),
+    title = stringr::str_extract(page1, "\\S.*") |> stringr::str_squish(),
+    found = dplyr::if_else(stringr::str_detect(stringr::str_squish(page1), "2019 Refinement"), "2019", "2006"),
+    pages = purrr::map_int(file, pdftools::pdf_length)
+  )
+```
+
+The edition printed on the first page matched the edition in the download address for `r sum(register$found == register$edition)` of the `r nrow(register)` files listed in @tbl-sources, which together ran to `r sum(register$pages)` pages.
+
+```{r}
+#| label: tbl-sources
+#| tbl-cap: "The IPCC Volume 4 files used in this book, with the title and edition printed on the first page of each."
+
+register |>
+  dplyr::select(edition, part, title, found, pages) |>
+  flextable::flextable() |>
+  flextable::set_table_properties(layout = "autofit", width = 1)
+```
+
+## Equations
+
+Each equation in the Guidelines was printed in a box headed by the word EQUATION, its number and, in the 2019 Refinement, the word NEW or UPDATED. The title followed in capitals and the formula below it. The `equations` chunk read every page of the eighteen chapters and kept the caption of each box with the title lines above the formula, a title line being one that carried no lower-case letter, no equals sign, no mathematical symbol and no leading digit or bracket.
+
+```{r}
+#| label: equations
+
+chapters <- register |>
+  dplyr::filter(stringr::str_detect(part, "^Ch[0-9]{2}$")) |>
+  dplyr::transmute(edition, chapter = as.integer(stringr::str_remove(part, "Ch")),
+                   text = purrr::map(file, pdftools::pdf_text))
+
+captions <- function(text) {
+  purrr::imap(text, \(pg, page) {
+    lines <- trimws(strsplit(pg, "\n")[[1]])
+    purrr::map(grep("^EQUATION [0-9]", lines), \(i) {
+      after <- lines[-seq_len(i)]
+      title <- after[seq_len(c(which(after == ""), length(after) + 1)[1] - 1)]
+      formula <- grepl("[a-z=\u2211\u2206\u2212\u2022\u239b\u239d\u23a1\u23a3\ue000-\uf8ff]|^[0-9(]", title)
+      tibble::tibble(page, caption = lines[i], title = paste(title[cumsum(formula) == 0], collapse = " "))
+    }) |> purrr::list_rbind()
+  }) |> purrr::list_rbind()
+}
+
+equations <- chapters |>
+  dplyr::mutate(found = purrr::map(text, captions), text = NULL) |>
+  tidyr::unnest(found) |>
+  dplyr::transmute(
+    edition, chapter,
+    number = stringr::str_extract(caption, "(?<=EQUATION )[0-9A-Z.]+"),
+    status = stringr::str_extract(caption, "NEW|UPDATED") |> tidyr::replace_na(""),
+    page, printed = paste0(chapter, ".", page), title
+  )
+```
+
+The eighteen chapters carried `r nrow(equations)` equations between them, `r sum(equations$edition == "2006")` in the 2006 Guidelines and `r sum(equations$edition == "2019")` in the 2019 Refinement, of which `r sum(equations$status == "NEW")` were marked NEW and `r sum(equations$status == "UPDATED")` UPDATED. They fell in `r dplyr::n_distinct(equations$chapter[equations$edition == "2006"])` of the nine 2006 chapters and `r dplyr::n_distinct(equations$chapter[equations$edition == "2019"])` of the nine 2019 chapters, so most chapters, forest land among them, defined no equation of their own and worked from the generic methods of Chapter 2.
+
+Appendix 4 of the 2019 Chapter 2, which held one equation numbered 4AP.1 for biochar as a basis for future methodological development, was left out of the register along with the annexes, so the register covers the eighteen chapters alone.
+
+The Guidelines number their pages by chapter, so page 33 of the Chapter 2 file is printed 2.33, and every page of the eighteen chapters carried that label, which is the fifth check below. The register gives both numbers, the position in the file as `page` and the number printed on the page as `printed`.
+
+Five checks were run on the extraction. No number appeared twice within a chapter, every number carried the number of the chapter it was found in, no title came out empty, no title held a character outside the capitals, digits and ordinary punctuation a title is set in, which is what a stray line of formula would leave behind, and every page carried its printed label. Each check counts the failures, so a zero is a pass, and the first four were confirmed able to fail on a row with a chapter number and a title altered by hand.
+
+```{r}
+#| label: checks
+
+c(duplicated = sum(duplicated(equations[c("edition", "chapter", "number")])),
+  wrong_chapter = sum(as.integer(stringr::str_extract(equations$number, "^[0-9]+")) != equations$chapter),
+  empty_title = sum(equations$title == ""),
+  odd_title = sum(stringr::str_detect(equations$title, "[^A-Z0-9 ,.:;()/><\u2264\u2265+%\u2013-]")),
+  page_label = sum(!purrr::list_c(purrr::map2(chapters$text, chapters$chapter,
+    \(text, chapter) stringr::str_detect(text, stringr::fixed(paste0(chapter, ".", seq_along(text))))))))
+```
+
+```{r}
+#| label: tbl-equations
+#| tbl-cap: "Every equation defined in Chapters 1 to 9 of the 2006 IPCC Guidelines and the 2019 Refinement, Volume 4, with the title, the page of the file and the page number printed in the Guidelines."
+
+equations |>
+  flextable::flextable() |>
+  flextable::set_table_properties(layout = "autofit", width = 1)
+```
+
+A chapter that defines no equation still names the ones it applies, and a chapter of the 2019 Refinement names equations that only the 2006 edition prints. @tbl-equation-use counts, for each chapter, the equations it defined and the numbered equations it named in its text, separating the numbers of its own chapter from those of other chapters.
+
+```{r}
+#| label: tbl-equation-use
+#| tbl-cap: "Equations defined and equations named in the text of each chapter, the named ones separated into numbers of the chapter itself and of other chapters."
+
+chapters |>
+  dplyr::mutate(
+    named = purrr::map(text, \(t) unique(stringr::str_extract_all(paste(t, collapse = " "), "(?<=[Ee]quation )[0-9]+\\.[0-9]+[A-Z]?")[[1]])),
+    own_chapter = purrr::map2_int(named, chapter, \(x, n) sum(stringr::str_starts(x, paste0(n, ".")))),
+    other_chapters = lengths(named) - own_chapter,
+    defined = purrr::map2_int(edition, chapter, \(e, n) sum(equations$edition == e & equations$chapter == n))
+  ) |>
+  dplyr::select(edition, chapter, defined, own_chapter, other_chapters) |>
+  flextable::flextable() |>
+  flextable::set_table_properties(layout = "autofit", width = 1)
+```
+
+## Default tables
+
+The default values a Tier 1 inventory runs on sit in numbered tables, each headed by the word TABLE, its number and, in the 2019 Refinement, NEW or UPDATED. A table that ran over a page break repeated its caption with the word CONTINUED, and a wide table was set in two columns, so the `tables` chunk kept the first column of each line, dropped the continuations and took the earliest page of each number. The title ran from the caption to the first line where lower-case letters outnumbered capitals, which is where the caption ends and the body of the table begins.
+
+```{r}
+#| label: tables
+
+headings <- function(text) {
+  purrr::imap(text, \(pg, page) {
+    lines <- purrr::map_chr(trimws(strsplit(pg, "\n")[[1]]), \(l) trimws(stringr::str_split_1(l, "\\s{3,}")[1]))
+    purrr::map(grep("^TABLE [0-9]", lines), \(i) {
+      after <- lines[-seq_len(i)]
+      after <- after[seq_len(c(which(after == ""), length(after) + 1)[1] - 1)]
+      shouting <- stringr::str_count(after, "[A-Z]") > stringr::str_count(after, "[a-z]")
+      tibble::tibble(page, caption = lines[i], below = paste(after[cumsum(!shouting) == 0], collapse = " "))
+    }) |> purrr::list_rbind()
+  }) |> purrr::list_rbind()
+}
+
+tables <- chapters |>
+  dplyr::mutate(found = purrr::map(text, headings), text = NULL) |>
+  tidyr::unnest(found) |>
+  dplyr::filter(!grepl("CONTINUED", caption)) |>
+  dplyr::transmute(
+    edition, chapter,
+    number = stringr::str_extract(caption, "(?<=TABLE )[0-9A-Z.]+"),
+    status = stringr::str_extract(caption, "NEW|UPDATED") |> tidyr::replace_na(""),
+    page, printed = paste0(chapter, ".", page),
+    title = trimws(paste(stringr::str_remove(caption, "^TABLE [0-9A-Z.]+ ?(\\((NEW|UPDATED)[0-9]*\\))?\\.?"), below)) |> stringr::str_remove(" [A-Z]$")
+  ) |>
+  dplyr::slice_min(page, by = c(edition, chapter, number), with_ties = FALSE)
+```
+
+The eighteen chapters carried `r nrow(tables)` default tables, `r sum(tables$edition == "2006")` in the 2006 Guidelines and `r sum(tables$edition == "2019")` in the 2019 Refinement, of which `r sum(tables$status == "NEW")` were marked NEW and `r sum(tables$status == "UPDATED")` UPDATED. Unlike the equations, they fell in every chapter that carried any method at all, `r dplyr::n_distinct(tables$chapter[tables$edition == "2006"])` of the nine 2006 chapters and `r dplyr::n_distinct(tables$chapter[tables$edition == "2019"])` of the nine 2019 chapters, so a chapter that borrows its equations still prints its own defaults. Forest land held `r sum(tables$edition == "2006" & tables$chapter == 4)` tables in 2006 and `r sum(tables$edition == "2019" & tables$chapter == 4)` in 2019, of which `r sum(tables$edition == "2019" & tables$chapter == 4 & tables$status == "UPDATED")` were marked UPDATED, so the 2019 forest chapter changed default values and left the methods alone. The chapter with no default table in either edition was `r paste("Chapter", setdiff(1:9, tables$chapter))`.
+
+Six checks were run. The first three repeat the equation checks. The fourth replaces the check on odd characters, because a table title carries units and so holds lower-case letters and brackets, and counts instead the titles longer than 300 characters, which is what a title running into the body of its table would leave behind. The fifth counts the 2006 tables marked NEW or UPDATED, which should be none, since only the 2019 Refinement marks a table that way. The sixth counts the titles ending in a single capital letter, which is a symbol lifted from the first column heading of the table below, as happened with the 2006 Tables 4.4 and 4.14 before that letter was removed.
+
+```{r}
+#| label: table-checks
+
+c(duplicated = sum(duplicated(tables[c("edition", "chapter", "number")])),
+  wrong_chapter = sum(as.integer(stringr::str_extract(tables$number, "^[0-9]+")) != tables$chapter),
+  empty_title = sum(tables$title == ""),
+  runaway_title = sum(nchar(tables$title) > 300),
+  status_in_2006 = sum(tables$edition == "2006" & tables$status != ""),
+  stray_letter = sum(stringr::str_detect(tables$title, " [A-Z]$")))
+```
+
+```{r}
+#| label: tbl-tables
+#| tbl-cap: "Every default table in Chapters 1 to 9 of the 2006 IPCC Guidelines and the 2019 Refinement, Volume 4, with the title, the page of the file and the page number printed in the Guidelines."
+
+tables |>
+  flextable::flextable() |>
+  flextable::set_table_properties(layout = "autofit", width = 1)
+```

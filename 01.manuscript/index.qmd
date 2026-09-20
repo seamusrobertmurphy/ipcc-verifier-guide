@@ -1,0 +1,3 @@
+# Preface {.unnumbered}
+
+This book shows how to calculate a national Tier 1 greenhouse gas inventory for land, in code, by following the 2019 Refinement to the 2006 IPCC Guidelines for National Greenhouse Gas Inventories [@ipcc2019refinement]. It begins with forest land and the generic methods of Volume 4, and it continues through cropland, grassland, wetlands, settlements and other land.
